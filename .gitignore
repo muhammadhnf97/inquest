@@ -1,1 +1,6 @@
-inquest.md
+.DS_Store
+ignore
+inquest
+*.test
+*.out
+vendor/
