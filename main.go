@@ -26,10 +26,15 @@ func main() {
 	if path != "" {
 		info := internal.ValidatePath(path)
 		if info.IsDir {
-			fmt.Println("INFO     : A directory, proceeding to gathering suspect...")
-			internal.Gathering(path)
+			fmt.Println("INFO:     A directory, proceeding to gathering suspect...")
+
+			suspects := internal.Gathering(path)
+			fmt.Println("INFO:     Suspects found:", len(suspects))
+			guilty := internal.Investigate(suspects)
+			fmt.Println("INFO:     Guilty:", len(guilty))
+
 		} else {
-			fmt.Println("INFO     : Not a directory")
+			fmt.Println("INFO:     Not a directory")
 		}
 	}
 }
