@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"path/filepath"
 
 	"github.com/muhammadhnf97/inquest/internal"
 )
@@ -27,27 +28,41 @@ func main() {
 		var totalSize int64
 		info := internal.ValidatePath(path)
 		if info.IsDir {
-			fmt.Println("INFO:     A directory, proceeding to gathering suspect...")
-			fmt.Println("INFO:     Gathering charges...")
-			suspects := internal.Gathering(path)
+			fmt.Printf("inquest v%s — investigating %s\n\n", version, path)
 
-			fmt.Println("INFO:     Suspects found:", len(suspects))
+			suspects := internal.Gathering(path)
 			guilty := internal.Investigate(suspects)
-			fmt.Println("INFO:     Guilty:", len(guilty))
+
+			if len(guilty) == 0 {
+				fmt.Println("Inquest complete. All innocent.")
+				return
+			}
+			fmt.Printf("%d of %d suspects stand accused.\n\n", len(guilty), len(suspects))
 
 			for _, g := range guilty {
-				fmt.Println("Guilty:", g.Path)
-				fmt.Println("Evidence:", g.Evidence)
-				fmt.Println("Size:", internal.Humanize(g.Weight))
-				fmt.Println()
+				fmt.Printf("%-9s %-13s %s  (evidence: %s)\n",
+					internal.Humanize(g.Weight),
+					g.Artifact,
+					g.Path,
+					filepath.Base(g.Evidence))
 				totalSize += g.Weight
 			}
-			fmt.Println("Reclaimable space:", internal.Humanize(totalSize))
+			disk := internal.DiskFree(path)
+			pct := float64(totalSize) / float64(disk.Total) * 100
+			fmt.Println("")
+			fmt.Printf("Reclaimable space: %s (%.1f%% of %s disk)\n", internal.Humanize(totalSize), pct, internal.Humanize(disk.Total))
+			fmt.Println("Reclaim the space? (y/N)")
+
+			var response string
+			fmt.Scanln(&response)
+			if response == "y" || response == "Y" {
+				fmt.Println("Reclaiming space...")
+			}
 
 		} else {
-			fmt.Println("INFO:     Not a directory")
+			fmt.Printf("Not a directory: %s\n", path)
 		}
 	} else {
-		fmt.Println("INFO:     No path provided")
+		fmt.Println("No path provided")
 	}
 }
