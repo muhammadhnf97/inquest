@@ -24,17 +24,30 @@ func main() {
 	}
 
 	if path != "" {
+		var totalSize int64
 		info := internal.ValidatePath(path)
 		if info.IsDir {
 			fmt.Println("INFO:     A directory, proceeding to gathering suspect...")
-
+			fmt.Println("INFO:     Gathering charges...")
 			suspects := internal.Gathering(path)
+
 			fmt.Println("INFO:     Suspects found:", len(suspects))
 			guilty := internal.Investigate(suspects)
 			fmt.Println("INFO:     Guilty:", len(guilty))
 
+			for _, g := range guilty {
+				fmt.Println("Guilty:", g.Path)
+				fmt.Println("Evidence:", g.Evidence)
+				fmt.Println("Size:", internal.Humanize(g.Weight))
+				fmt.Println()
+				totalSize += g.Weight
+			}
+			fmt.Println("Reclaimable space:", internal.Humanize(totalSize))
+
 		} else {
 			fmt.Println("INFO:     Not a directory")
 		}
+	} else {
+		fmt.Println("INFO:     No path provided")
 	}
 }
