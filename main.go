@@ -3,7 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
-	"path/filepath"
+	"os"
+	"text/tabwriter"
 
 	"github.com/muhammadhnf97/inquest/internal"
 )
@@ -18,6 +19,14 @@ func main() {
 	var path string
 	flag.StringVar(&path, "path", ".", "Path to investigate")
 	flag.StringVar(&path, "p", ".", "Path to investigate")
+
+	var dryRun bool
+	flag.BoolVar(&dryRun, "dry-run", false, "Dry run")
+	flag.BoolVar(&dryRun, "n", false, "Dry run")
+
+	var yes bool
+	flag.BoolVar(&yes, "yes", false, "Execute without asking")
+	flag.BoolVar(&yes, "y", false, "Execute without asking")
 	flag.Parse()
 
 	if showVersion {
@@ -39,24 +48,50 @@ func main() {
 			}
 			fmt.Printf("%d of %d suspects stand accused.\n\n", len(guilty), len(suspects))
 
+			w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
+			fmt.Fprintln(w, "SIZE\tTYPE\tAGE\tPATH")
 			for _, g := range guilty {
-				fmt.Printf("%-9s %-13s %s  (evidence: %s)\n",
+				fmt.Fprintf(w, "%s\t%s\t%s\t%s\n",
 					internal.Humanize(g.Weight),
 					g.Artifact,
-					g.Path,
-					filepath.Base(g.Evidence))
+					internal.HumanizeAge(g.ModTime),
+					g.Path)
 				totalSize += g.Weight
 			}
+			w.Flush()
 			disk := internal.DiskFree(path)
 			pct := float64(totalSize) / float64(disk.Total) * 100
 			fmt.Println("")
 			fmt.Printf("Reclaimable space: %s (%.1f%% of %s disk)\n", internal.Humanize(totalSize), pct, internal.Humanize(disk.Total))
-			fmt.Println("Reclaim the space? (y/N)")
-
+			if dryRun {
+				fmt.Println("Dry run mode. No files will be deleted.")
+				return
+			}
 			var response string
-			fmt.Scanln(&response)
-			if response == "y" || response == "Y" {
+			if !yes {
+				fmt.Println("Reclaim the space? (y/N)")
+				fmt.Scanln(&response)
+			}
+			if yes || response == "y" || response == "Y" || response == "yes" || response == "YES" {
 				fmt.Println("Reclaiming space...")
+
+				var reclaimed int64
+				for _, g := range guilty {
+					if err := internal.Execute(g.Path); err != nil {
+						fmt.Println("Failed to execute:", g.Path, "-", err)
+					} else {
+						fmt.Printf("Executed: %s (reclaimed %s)\n", g.Path, internal.Humanize(g.Weight))
+						reclaimed += g.Weight
+					}
+				}
+				if reclaimed == totalSize {
+					fmt.Println("Sentence carried out. All executions complete.")
+				} else {
+					fmt.Printf("Sentence partially carried out. %s of %s reclaimed.\n",
+						internal.Humanize(reclaimed), internal.Humanize(totalSize))
+				}
+			} else {
+				fmt.Println("Guilty has been forgiven.")
 			}
 
 		} else {
