@@ -4,6 +4,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 func Gathering(path string) []Suspect {
@@ -22,9 +23,14 @@ func Gathering(path string) []Suspect {
 		}
 
 		if _, charged := charges[d.Name()]; charged {
+			var modTime time.Time
+			if info, err := d.Info(); err == nil {
+				modTime = info.ModTime()
+			}
 			suspects = append(suspects, Suspect{
 				Path:     path,
 				Artifact: d.Name(),
+				ModTime:  modTime,
 			})
 			return fs.SkipDir // outermost only — never descend into a suspect
 		}

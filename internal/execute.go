@@ -1,5 +1,7 @@
 package internal
 
-func Execute(path string) {
+import "os"
 
+func Execute(path string) error {
+	return os.RemoveAll(path)
 }
