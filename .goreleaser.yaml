@@ -2,7 +2,7 @@ version: 2
 
 builds:
   - env: [CGO_ENABLED=0]
-    goos: [darwin, linux, windows]
+    goos: [darwin, linux]
 
 archives:
   - formats: [tar.gz]
