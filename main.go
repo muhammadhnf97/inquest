@@ -47,6 +47,7 @@ func main() {
 
 	if showVersion {
 		fmt.Println(version)
+		return
 	}
 
 	if path != "" {
