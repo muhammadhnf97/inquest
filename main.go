@@ -10,7 +10,7 @@ import (
 	"github.com/muhammadhnf97/inquest/internal"
 )
 
-var version = "1.0.0"
+var version = "0.1.0"
 
 func main() {
 	var showVersion bool
