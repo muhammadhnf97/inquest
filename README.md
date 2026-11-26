@@ -74,7 +74,7 @@ lacking its manifest.
 ## Status
 
 Early development. Gathering and Investigation are wired; sizing, docket
-output, confirmation, and execution are next. See `ignore/inquest.md` for the
+output, confirmation, and execution are next. See `SPEC.md` for the
 full spec.
 
 Inspired by [kondo](https://github.com/tbillington/kondo) and
