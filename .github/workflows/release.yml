@@ -1,0 +1,24 @@
+name: release
+on:
+  push:
+    tags: ["v*"]                    # only fires when you push a v-prefixed tag
+
+permissions:
+  contents: write                   # allow creating GitHub Releases
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }    # goreleaser needs full git history + tags
+
+      - uses: actions/setup-go@v5
+        with: { go-version: "1.25" }
+
+      - uses: goreleaser/goreleaser-action@v6
+        with:
+          version: "~> v2"          # goreleaser v2 CLI
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # auto-provided, nothing to create
