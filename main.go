@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"os/signal"
 	"text/tabwriter"
 
 	"github.com/muhammadhnf97/inquest/internal"
@@ -29,6 +30,21 @@ func main() {
 	flag.BoolVar(&yes, "y", false, "Execute without asking")
 	flag.Parse()
 
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	var guilty []internal.Suspect
+
+	go func() {
+		<-c
+		fmt.Println("\nInquest interrupted")
+		if len(guilty) > 0 {
+			for _, g := range guilty {
+				fmt.Println(g.Path)
+			}
+		}
+		os.Exit(130)
+	}()
+
 	if showVersion {
 		fmt.Println(version)
 	}
@@ -40,7 +56,7 @@ func main() {
 			fmt.Printf("inquest v%s — investigating %s\n\n", version, path)
 
 			suspects := internal.Gathering(path)
-			guilty := internal.Investigate(suspects)
+			guilty = internal.Investigate(suspects)
 
 			if len(guilty) == 0 {
 				fmt.Println("Inquest complete. All innocent.")
