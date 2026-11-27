@@ -34,6 +34,11 @@ func main() {
 	signal.Notify(c, os.Interrupt)
 	var guilty []internal.Suspect
 
+	if flag.NArg() > 0 {
+		fmt.Fprintln(os.Stderr, "unexpected arguments:", flag.Args())
+		os.Exit(2)
+	}
+
 	go func() {
 		<-c
 		fmt.Println("\nInquest interrupted")
