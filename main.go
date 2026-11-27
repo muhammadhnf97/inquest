@@ -28,6 +28,19 @@ func main() {
 	var yes bool
 	flag.BoolVar(&yes, "yes", false, "Execute without asking")
 	flag.BoolVar(&yes, "y", false, "Execute without asking")
+
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, `inquest — your disk is under investigation
+
+usage: inquest [--path <dir>] [--dry-run] [--yes] [--version]
+
+flags:
+  -p, --path <dir>   path to investigate (default ".")
+  -n, --dry-run      judge only, execute nothing
+  -y, --yes          execute all guilty without asking
+  -v, --version      print version and exit
+`)
+	}
 	flag.Parse()
 
 	c := make(chan os.Signal, 1)
@@ -36,6 +49,7 @@ func main() {
 
 	if flag.NArg() > 0 {
 		fmt.Fprintln(os.Stderr, "unexpected arguments:", flag.Args())
+		flag.Usage()
 		os.Exit(2)
 	}
 
