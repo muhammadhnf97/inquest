@@ -29,9 +29,9 @@ A directory is guilty ONLY if name matches AND its parent contains the manifest
 | node_modules  | package.json                             | npm/yarn install   | implemented |
 | .venv, venv   | requirements.txt or pyproject.toml       | pip install        | partial*    |
 | __pycache__   | any *.py file                            | auto on next run   | planned     |
-| target        | Cargo.toml                               | cargo build        | planned     |
-| .next, .nuxt  | package.json                             | next/nuxt build    | planned     |
-| vendor        | go.mod                                   | go mod vendor      | planned     |
+| target        | Cargo.toml                               | cargo build        | implemented |
+| .next, .nuxt  | package.json                             | next/nuxt build    | implemented |
+| vendor        | go.mod                                   | go mod vendor      | implemented |
 
 *current `charges` map holds one manifest per name; .venv/venv convict on
 requirements.txt only — pyproject.toml still to add.
